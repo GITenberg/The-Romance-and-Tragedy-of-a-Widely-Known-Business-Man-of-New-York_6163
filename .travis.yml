@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: zOT+2gDCkHyY1sjm/mZzLmjCVSijDOWxeoxlZ/CDxgYy8usrnKsq3JcPOUnE5yI1EuuJq82ObtJM1AF59JTUvUMrdoQg7l43M2EDNx9JFvj/bPB5htQxSU4B5gkHV7urteqzP/KjggDzm7F0Y9+8GPO2RbrJWItbe424aCsgrPEl3L/YDFxo0211t7UpHNxV27OYWKCaE9LLD/l4byj5BjFows4QKyGLANdNbYRMxfrjawmiwRVp7Derx3Doi6wX0s0Hd5vQAqMQTG1DZZT2ea+lQVSBow13NT9bcv9PRtiRndg6mvbRNyxsca+3AoKReGBayd5gU8ZpMaQbdEv3hnxPqx0fjAgqh7HmVweqPVcIKrYwLzL5lNK3xgP4gaAoBpy9QtFbBYcD6VZeuTqIvMah+T0OJZYadPgG8aAVtplBnF8nt7I8nmXx9fAmHat29q43huG9mQFK1B9cm3NydKTUXXB9rUMUD44sX0KMisXxTvVruWNKmaEzYfBAsnsGJAOfrVXHv8dmyge3uwOvpTOIVNJ5nkuFNH3nBKHS4XlDwPOEw+kfQ6PGQdwA6HacBhxVATWM/oEWZMoYxLGSKdqx+Nu2pSpWuRDY7iidjF+OzMpa45tRPiZNUK6JmnD0W2HgRUUwFspFS/FPOY2QHuDcTxsj5DNjDQQRL1Hvp/o=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Romance-and-Tragedy-of-a-Widely-Known-Business-Man-of-New-York_6163
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
